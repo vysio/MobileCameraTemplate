@@ -52,13 +52,94 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
 });
 
-function initCameraUI() {
+function recordAndUpload() {
+    console.log("Yay!")
+    var chunks = [];
+    console.log(window.stream);
+    console.log(chunks.length)
+
+
+    let preview = document.getElementById("preview");
+    let recording = document.getElementById("recording");
+    let startButton = document.getElementById("startButton");
+    let stopButton = document.getElementById("stopButton");
+    let downloadButton = document.getElementById("downloadButton");
+    let logElement = document.getElementById("log");
+
+    let recordingTimeMS = 5000;
     
+    function log(msg) {
+        console.log(msg);
+        logElement.innerHTML += msg + "\n";
+    }
+
+    function wait(delayInMS) {
+        return new Promise(resolve => setTimeout(resolve, delayInMS));
+    }
+
+    function startRecording(stream, lengthInMS) {
+        let recorder = new MediaRecorder(stream);
+        let data = [];
+ 
+        recorder.ondataavailable = event => data.push(event.data);
+        recorder.start();
+        log(recorder.state + " for " + (lengthInMS/1000) + " seconds...");
+ 
+        let stopped = new Promise((resolve, reject) => {
+            recorder.onstop = resolve;
+            recorder.onerror = event => reject(event.name);
+        });
+        let recorded = wait(lengthInMS).then(
+            () => recorder.state == "recording" && recorder.stop());
+ 
+        return Promise.all([stopped, recorded]).then(() => data);
+    }
+
+    function stop(stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+
+    function wrapped(f) {
+        return new Promise(resolve => setTimeout(() => { resolve(f);}, 1000))
+    }
+
+    startButton.addEventListener("click", function() {
+        console.log("clicked start")
+        wrapped(() => window.stream).then(stream => {
+        //   preview.srcObject = stream;
+          downloadButton.href = window.stream;
+        //   preview.captureStream = preview.captureStream || preview.mozCaptureStream;
+          return wrapped(() => window.stream); // new Promise(resolve => preview.onplaying = resolve);
+        }).then((stream) => startRecording(window.stream, recordingTimeMS))
+        .then (recordedChunks => {
+          let recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+          recording.src = URL.createObjectURL(recordedBlob);
+          downloadButton.href = recording.src;
+          downloadButton.download = "RecordedVideo.webm";
+          
+          log("Successfully recorded " + recordedBlob.size + " bytes of " +
+              recordedBlob.type + " media.");
+        })
+        .catch(log);
+      }, false);stopButton.addEventListener("click", function() {
+          console.log("Called stopped")
+        // stop(preview.srcObject);
+      }, false);
+
+
+
+}
+
+function initCameraUI() {
+
     video = document.getElementById('video');
 
     takePhotoButton = document.getElementById('takePhotoButton');
     toggleFullScreenButton = document.getElementById('toggleFullScreenButton');
     switchCameraButton = document.getElementById('switchCameraButton');
+    recordButton = document.getElementById('recordButton')
+
+    recordButton.addEventListener("click", recordAndUpload);
     
     // https://developer.mozilla.org/nl/docs/Web/HTML/Element/button
     // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_button_role

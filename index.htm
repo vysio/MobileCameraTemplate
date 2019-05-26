@@ -16,9 +16,39 @@
         <div id="video_overlay"></div>
     </div>
     <div id="gui_controls">
-        <button id="switchCameraButton" name="switch Camera" type="button" aria-pressed="false"></button>
-        <button id="takePhotoButton" name="take Photo" type="button"></button>
-        <button id="toggleFullScreenButton" name="toggle FullScreen" type="button" aria-pressed="false"></button>
+        <button id="switchCameraButton" name="switch Camera" type="button" aria-pressed="false">Switch Camera</button>
+        <button id="takePhotoButton" name="take Photo" type="button">Take Photo</button>
+        <button id="toggleFullScreenButton" name="toggle FullScreen" type="button" aria-pressed="false">Toggle Fullscreen</button>
+    </div>
+    <div id="recording_controls">
+        <button id="recordButton">RECORD</div>
+          <p>Click the "Start" button to begin video recording for a few seconds. You can stop
+              the video by clicking the creatively-named "Stop" button. The "Download"
+              button will download the received data (although it's in a raw, unwrapped form
+              that isn't very useful).
+           </p>
+           <br>
+           <div class="left">
+             <button id="startButton" class="button">
+               Start
+             </button>
+             <h2>Preview</h2>
+             <video id="preview" width="160" height="120" autoplay muted></video>
+           </div>
+           <div class="right">
+             <div id="stopButton" class="button">
+               Stop
+             </div>
+             <h2>Recording</h2>
+             <video id="recording" width="160" height="120" controls></video>
+             <a id="downloadButton" class="button">
+               Download
+             </a>
+           </div>
+           <div class="bottom">
+             <pre id="log"></pre>
+           </div>
+
     </div>
   </div> 
   <script src="js/DetectRTC.min.js"></script>
