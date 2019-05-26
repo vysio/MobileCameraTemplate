@@ -1,3 +1,10 @@
+# Setup
+
+```sh
+./build.sh
+firebase deploy
+```
+
 # Mobile (and Desktop) Camera App Template (HTML, CSS, JS and WebRTC)
 
 I like to experiment with Computer Vision and AI API's (like Azure Cognetive Services, Google Cloud Vision, IBM Watson) to see if I can utilise them for some ideas. 

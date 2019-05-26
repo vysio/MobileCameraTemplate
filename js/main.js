@@ -194,6 +194,9 @@ function initCameraStream() {
 
 }
 
+
+var snapshots = [];
+
 function takeSnapshot() {
     
     // if you'd like to show the canvas add it to the DOM
@@ -218,10 +221,19 @@ function takeSnapshot() {
         })
     }
 
-    // some API's (like Azure Custom Vision) need a blob with image data
-    getCanvasBlob(canvas).then(function(blob) {
 
-        // do something with the image blob
+    // some API's (like Azure Custom Vision) need a blob with image data
+    getCanvasBlob(canvas).then(async function(blob) {
+
+        console.log(blob);
+        alert("Got jpeg image of size " + blob.size.toString());
+        const net = await posenet.load();
+        window._net = net
+        window._image = blob
+        imgElem = document.createElement('img')
+        imgElem.src = URL.createObjectURL(_image)
+        console.log(imgElem)
+        setTimeout(() => {console.log("now trying"); _net.estimateSinglePose(imgElem).then((r) => {console.log(r); alert(r.score)}); }, 1000);
 
     });
 
