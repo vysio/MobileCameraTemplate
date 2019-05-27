@@ -201,6 +201,8 @@ function takeSnapshot() {
     
     // if you'd like to show the canvas add it to the DOM
     var canvas = document.createElement('canvas');
+    document.getElementById('vid_container').appendChild(canvas);
+
 
     var width = video.videoWidth;
     var height = video.videoHeight;
@@ -221,10 +223,43 @@ function takeSnapshot() {
         })
     }
 
+    const drawPoint = function(ctx, y, x, r, color) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.fillStyle = color;
+        ctx.fill();
+      }
+
+    const drawKeypoints = function(keypoints, minConfidence, ctx, scale = 1) {
+        const color = 'aqua';
+        for (let i = 0; i < keypoints.length; i++) {
+          const keypoint = keypoints[i];
+      
+          if (keypoint.score < minConfidence) {
+            continue;
+          }
+      
+          const {y, x} = keypoint.position;
+          drawPoint(ctx, y * scale, x * scale, 3, color);
+        }
+      }
+
+    const updateCanvas = function(canvas, r) {
+        console.log(canvas);
+        window._canvas = canvas;
+        document.getElementById('video').style.display = 'none';
+
+        keypoints = r.keypoints
+        console.log(keypoints)
+        context = canvas.getContext('2d')
+        drawKeypoints(keypoints, 0, context)
+
+    }
+
 
     // some API's (like Azure Custom Vision) need a blob with image data
     getCanvasBlob(canvas).then(async function(blob) {
-
+        console.log(canvas);
         console.log(blob);
         alert("Got jpeg image of size " + blob.size.toString());
         const net = await posenet.load();
@@ -233,7 +268,14 @@ function takeSnapshot() {
         imgElem = document.createElement('img')
         imgElem.src = URL.createObjectURL(_image)
         console.log(imgElem)
-        setTimeout(() => {console.log("now trying"); _net.estimateSinglePose(imgElem).then((r) => {console.log(r); alert(r.score)}); }, 1000);
+        setTimeout(() => {
+            console.log("now trying"); 
+            _net.estimateSinglePose(imgElem).then((r) => {
+                console.log(r);
+                alert(r.score);
+                updateCanvas(canvas, r);
+            }); 
+        }, 1000);
 
     });
 
