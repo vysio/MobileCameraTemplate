@@ -217,10 +217,11 @@ function takeSnapshot() {
             canvas.toBlob(function(blob) { resolve(blob) }, 'image/jpeg');
         })
     }
+    
+    runOnClick(canvas);
 
     // some API's (like Azure Custom Vision) need a blob with image data
     getCanvasBlob(canvas).then(function(blob) {
-
         // do something with the image blob
 
     });
